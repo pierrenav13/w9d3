@@ -43,7 +43,7 @@ function FollowToggle(el){
     this.el = $(el);
     this.el.text('Follow!')
     this.render();
-
+    this.el.prop('disabled', false)
 
     this.el.on('click', (e) => {
         this.handleClick(e);
@@ -51,27 +51,32 @@ function FollowToggle(el){
 }
 
 FollowToggle.prototype.render = function(){
+    this.el.prop('disabled', false)
     if (this.followState === 'unfollowed'){
         this.el.text('Follow!');
         this.el.data('initialFollowState', 'followed');
-    } else {
+        
+    } else if (this.followState === 'followed'){
         this.el.text('Unfollow!');
         this.el.data('initialFollowState', 'unfollowed');
+        
     };
 }
 
 FollowToggle.prototype.handleClick = function(e){
     e.preventDefault();
-    debugger
+    // debugger
     if(this.followState === 'unfollowed'){
-        debugger
+        // debugger
+        this.el.prop('disabled', true);
         this.followState = 'followed';
         APIUtil.followUser(this.userId).then(() => {
             let boundRender = this.render.bind(this);
             boundRender();
         });
     } else {
-        debugger
+        // debugger
+        this.el.prop('disabled', true);
         this.followState = 'unfollowed';
         APIUtil.unfollowUser(this.userId).then(() => {
             let boundRender = this.render.bind(this);
