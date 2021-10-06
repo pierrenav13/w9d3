@@ -1,11 +1,41 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./frontend/api_util.js":
+/*!******************************!*\
+  !*** ./frontend/api_util.js ***!
+  \******************************/
+/***/ ((module) => {
+
+const APIUtil = {
+    followUser: id => {
+        return $.ajax({
+            url: `/users/${id}/follow`,
+            method: 'POST',
+            dataType: 'JSON'
+        })
+    },
+
+    unfollowUser: id => {
+        return $.ajax({
+            url: `/users/${id}/follow`,
+            method: "DELETE",
+            dataType: 'JSON'
+        })
+    }
+};
+
+module.exports = APIUtil;
+
+/***/ }),
+
 /***/ "./frontend/follow_toggle.js":
 /*!***********************************!*\
   !*** ./frontend/follow_toggle.js ***!
   \***********************************/
-/***/ ((module) => {
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const APIUtil = __webpack_require__(/*! ./api_util */ "./frontend/api_util.js")
 
 function FollowToggle(el){
     this.userId = $(el).data("userId");
@@ -17,7 +47,6 @@ function FollowToggle(el){
 
     this.el.on('click', (e) => {
         this.handleClick(e);
-
     });
 }
 
@@ -37,25 +66,14 @@ FollowToggle.prototype.handleClick = function(e){
     if(this.followState === 'unfollowed'){
         debugger
         this.followState = 'followed';
-        return $.ajax({
-            url: `/users/${this.userId}/follow`,
-            method: 'POST',
-            dataType: 'JSON'
-        }).then(()=> {
-            debugger
-            let boundRender = this.render.bind(this)
+        APIUtil.followUser(this.userId).then(() => {
+            let boundRender = this.render.bind(this);
             boundRender();
-        }).fail(err => {
-            console.log(err.responseText);
         });
     } else {
         debugger
         this.followState = 'unfollowed';
-        return $.ajax({
-            url: `/users/${this.userId}/follow`,
-            method: "DELETE",
-            dataType: 'JSON'
-        }).then(() => {
+        APIUtil.unfollowUser(this.userId).then(() => {
             let boundRender = this.render.bind(this);
             boundRender();
         });

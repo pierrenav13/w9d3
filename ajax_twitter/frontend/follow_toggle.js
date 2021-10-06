@@ -1,3 +1,5 @@
+const APIUtil = require('./api_util')
+
 function FollowToggle(el){
     this.userId = $(el).data("userId");
     this.followState = $(el).data("initialFollowState");
@@ -8,7 +10,6 @@ function FollowToggle(el){
 
     this.el.on('click', (e) => {
         this.handleClick(e);
-
     });
 }
 
@@ -28,25 +29,14 @@ FollowToggle.prototype.handleClick = function(e){
     if(this.followState === 'unfollowed'){
         debugger
         this.followState = 'followed';
-        return $.ajax({
-            url: `/users/${this.userId}/follow`,
-            method: 'POST',
-            dataType: 'JSON'
-        }).then(()=> {
-            debugger
-            let boundRender = this.render.bind(this)
+        APIUtil.followUser(this.userId).then(() => {
+            let boundRender = this.render.bind(this);
             boundRender();
-        }).fail(err => {
-            console.log(err.responseText);
         });
     } else {
         debugger
         this.followState = 'unfollowed';
-        return $.ajax({
-            url: `/users/${this.userId}/follow`,
-            method: "DELETE",
-            dataType: 'JSON'
-        }).then(() => {
+        APIUtil.unfollowUser(this.userId).then(() => {
             let boundRender = this.render.bind(this);
             boundRender();
         });
