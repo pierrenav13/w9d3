@@ -13,44 +13,57 @@ function FollowToggle(el){
     this.el = $(el);
     this.el.text('Follow!')
     this.render();
-    this.handleClick();
+
+
+    this.el.on('click', (e) => {
+        this.handleClick(e);
+
+    });
 }
 
 FollowToggle.prototype.render = function(){
-    if (this.followState === false){
+    if (this.followState === 'unfollowed'){
         this.el.text('Follow!');
-        this.el.data('initialFollowState', true);
+        this.el.data('initialFollowState', 'followed');
     } else {
         this.el.text('Unfollow!');
-        this.followState = false;
-        this.el.data('initialFollowState', false);
+        this.el.data('initialFollowState', 'unfollowed');
     };
 }
 
-FollowToggle.prototype.handleClick = function(){
-    //e.preventDefault();
+FollowToggle.prototype.handleClick = function(e){
+    e.preventDefault();
     debugger
-    if(this.followState === false){
+    if(this.followState === 'unfollowed'){
+        debugger
+        this.followState = 'followed';
         return $.ajax({
             url: `/users/${this.userId}/follow`,
             method: 'POST',
-            data: {
-                user_id: this.userId
-            },
             dataType: 'JSON'
-        }).then(this.render);
+        }).then(()=> {
+            debugger
+            let boundRender = this.render.bind(this)
+            boundRender();
+        }).fail(err => {
+            console.log(err.responseText);
+        });
     } else {
+        debugger
+        this.followState = 'unfollowed';
         return $.ajax({
             url: `/users/${this.userId}/follow`,
             method: "DELETE",
-            data: {
-                user_id: this.userId
-            },
             dataType: 'JSON'
-        }).then(this.render);
+        }).then(() => {
+            let boundRender = this.render.bind(this);
+            boundRender();
+        });
     };
     
 };
+
+
 
 
 module.exports = FollowToggle;
@@ -93,15 +106,11 @@ var __webpack_exports__ = {};
 const FollowToggle = __webpack_require__(/*! ./follow_toggle.js */ "./frontend/follow_toggle.js");
 
 const setEventListeners = () => {
-    $('button.follow-toggle').on('click', (e) => {
-        e.preventDefault();
-        $('button.follow-toggle').each(function( index, element ) {
+        $('button.follow-toggle').each(function (index, element) {
             let el = $(element);
             let button = new FollowToggle(el);
-            
-        })
 
-    })
+        })
 };
 
 $(setEventListeners);
